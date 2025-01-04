@@ -9,7 +9,7 @@ struct Node<T> {
     next: NodePointer<T>,
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum LinkedListError {
     #[error("The requested index is out of bounds")]
     OutOfBounds,
@@ -37,6 +37,31 @@ impl<T> LinkedList<T> {
             self.head = node.next;
             node.value
         })
+    }
+
+    pub fn insert(&mut self, index: usize, value: T) -> Result<(), LinkedListError> {
+        if index == 0 {
+            self.push_head(value);
+            return Ok(());
+        }
+
+        let mut current = &mut self.head;
+        let mut count = 0;
+
+        while let Some(node) = current {
+            if count + 1 == index {
+                let new_node = Box::new(Node {
+                    value,
+                    next: node.next.take(),
+                });
+                node.next = Some(new_node);
+                return Ok(());
+            }
+            count += 1;
+            current = &mut node.next;
+        }
+
+        Err(LinkedListError::OutOfBounds)
     }
 }
 
@@ -91,5 +116,40 @@ mod test {
     fn pop_empty() {
         let mut list: LinkedList<i32> = LinkedList::new();
         assert_eq!(list.pop_head(), None);
+    }
+
+    #[test]
+    fn insert_at_head() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        list.push_head(2);
+        list.insert(0, 3).unwrap();
+        assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
+    }
+
+    #[test]
+    fn insert_in_middle() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        list.push_head(3);
+        list.insert(1, 2).unwrap();
+        assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
+    }
+
+    #[test]
+    fn insert_out_of_bounds() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        let result = list.insert(10, 2);
+        assert_eq!(result, Err(LinkedListError::OutOfBounds));
+    }
+
+    #[test]
+    fn insert_at_tail() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(2);
+        list.push_head(1);
+        list.insert(2, 3).unwrap();
+        assert_eq!(list.to_string(), "1 -> 2 -> 3 -> None");
     }
 }
