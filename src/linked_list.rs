@@ -1,12 +1,14 @@
 use std::fmt::{self, Display, Formatter};
 
+type NodePointer<T> = Option<Box<Node<T>>>;
+
 struct Node<T> {
     value: T,
-    next: Option<Box<Node<T>>>,
+    next: NodePointer<T>,
 }
 
 pub struct LinkedList<T> {
-    head: Option<Box<Node<T>>>,
+    head: NodePointer<T>,
 }
 
 impl<T> LinkedList<T> {
