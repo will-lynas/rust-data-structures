@@ -1,10 +1,18 @@
 use std::fmt::{self, Display, Formatter};
 
+use thiserror::Error;
+
 type NodePointer<T> = Option<Box<Node<T>>>;
 
 struct Node<T> {
     value: T,
     next: NodePointer<T>,
+}
+
+#[derive(Error, Debug)]
+pub enum LinkedListError {
+    #[error("The requested index is out of bounds")]
+    OutOfBounds,
 }
 
 pub struct LinkedList<T> {
