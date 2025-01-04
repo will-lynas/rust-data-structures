@@ -62,11 +62,26 @@ mod test {
     }
 
     #[test]
-    fn non_empty() {
+    fn push() {
         let mut list: LinkedList<i32> = LinkedList::new();
         list.push_head(1);
         list.push_head(2);
         list.push_head(3);
         assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
+    }
+
+    #[test]
+    fn pop() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        list.push_head(2);
+        assert_eq!(list.pop_head(), Some(2));
+        assert_eq!(list.to_string(), "1 -> None");
+    }
+
+    #[test]
+    fn pop_empty() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        assert_eq!(list.pop_head(), None);
     }
 }
