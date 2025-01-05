@@ -90,6 +90,16 @@ impl<T: Display> Display for LinkedList<T> {
     }
 }
 
+impl<T> From<Vec<T>> for LinkedList<T> {
+    fn from(vec: Vec<T>) -> Self {
+        let mut list = LinkedList::new();
+        for value in vec.into_iter().rev() {
+            list.push(value);
+        }
+        list
+    }
+}
+
 pub struct LinkedListIterator<'a, T> {
     current: Option<&'a Node<T>>,
 }
@@ -213,5 +223,13 @@ mod test {
         assert_eq!(iter.next(), Some(&3));
         assert_eq!(iter.next(), Some(&2));
         assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
+    }
+
+    #[test]
+    fn from_vec() {
+        let vec = vec![1, 2, 3, 4];
+        let list: LinkedList<i32> = LinkedList::from(vec);
+
+        assert_eq!(list.to_string(), "1 -> 2 -> 3 -> 4 -> None");
     }
 }
