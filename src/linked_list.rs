@@ -24,6 +24,12 @@ impl<T> LinkedList<T> {
         LinkedList { head: None }
     }
 
+    pub fn iter(&self) -> LinkedListIterator<T> {
+        LinkedListIterator {
+            current: self.head.as_deref(),
+        }
+    }
+
     pub fn push_head(&mut self, value: T) {
         let node = Box::new(Node {
             value,
@@ -81,6 +87,21 @@ impl<T: Display> Display for LinkedList<T> {
         }
 
         write!(f, "None")
+    }
+}
+
+pub struct LinkedListIterator<'a, T> {
+    current: Option<&'a Node<T>>,
+}
+
+impl<'a, T> Iterator for LinkedListIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current.take().map(|node| {
+            self.current = node.next.as_deref();
+            &node.value
+        })
     }
 }
 
@@ -151,5 +172,46 @@ mod test {
         list.push_head(1);
         list.insert(2, 3).unwrap();
         assert_eq!(list.to_string(), "1 -> 2 -> 3 -> None");
+    }
+
+    #[test]
+    fn iter_empty_list() {
+        let list: LinkedList<i32> = LinkedList::new();
+        let mut iter = list.iter();
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn iter_single_element() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        let mut iter = list.iter();
+        assert_eq!(iter.next(), Some(&1));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn iter_multiple_elements() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        list.push_head(2);
+        list.push_head(3);
+        let mut iter = list.iter();
+        assert_eq!(iter.next(), Some(&3));
+        assert_eq!(iter.next(), Some(&2));
+        assert_eq!(iter.next(), Some(&1));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn iter_does_not_consume_list() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push_head(1);
+        list.push_head(2);
+        list.push_head(3);
+        let mut iter = list.iter();
+        assert_eq!(iter.next(), Some(&3));
+        assert_eq!(iter.next(), Some(&2));
+        assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
     }
 }
