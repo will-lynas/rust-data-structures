@@ -30,7 +30,7 @@ impl<T> LinkedList<T> {
         }
     }
 
-    pub fn push_head(&mut self, value: T) {
+    pub fn push(&mut self, value: T) {
         let node = Box::new(Node {
             value,
             next: self.head.take(),
@@ -38,7 +38,7 @@ impl<T> LinkedList<T> {
         self.head = Some(node);
     }
 
-    pub fn pop_head(&mut self) -> Option<T> {
+    pub fn pop(&mut self) -> Option<T> {
         self.head.take().map(|node| {
             self.head = node.next;
             node.value
@@ -47,7 +47,7 @@ impl<T> LinkedList<T> {
 
     pub fn insert(&mut self, index: usize, value: T) -> Result<(), LinkedListError> {
         if index == 0 {
-            self.push_head(value);
+            self.push(value);
             return Ok(());
         }
 
@@ -118,32 +118,32 @@ mod test {
     #[test]
     fn push() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(2);
-        list.push_head(3);
+        list.push(1);
+        list.push(2);
+        list.push(3);
         assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
     }
 
     #[test]
     fn pop() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(2);
-        assert_eq!(list.pop_head(), Some(2));
+        list.push(1);
+        list.push(2);
+        assert_eq!(list.pop(), Some(2));
         assert_eq!(list.to_string(), "1 -> None");
     }
 
     #[test]
     fn pop_empty() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        assert_eq!(list.pop_head(), None);
+        assert_eq!(list.pop(), None);
     }
 
     #[test]
     fn insert_at_head() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(2);
+        list.push(1);
+        list.push(2);
         list.insert(0, 3).unwrap();
         assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
     }
@@ -151,8 +151,8 @@ mod test {
     #[test]
     fn insert_in_middle() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(3);
+        list.push(1);
+        list.push(3);
         list.insert(1, 2).unwrap();
         assert_eq!(list.to_string(), "3 -> 2 -> 1 -> None");
     }
@@ -160,7 +160,7 @@ mod test {
     #[test]
     fn insert_out_of_bounds() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
+        list.push(1);
         let result = list.insert(10, 2);
         assert_eq!(result, Err(LinkedListError::OutOfBounds));
     }
@@ -168,8 +168,8 @@ mod test {
     #[test]
     fn insert_at_tail() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(2);
-        list.push_head(1);
+        list.push(2);
+        list.push(1);
         list.insert(2, 3).unwrap();
         assert_eq!(list.to_string(), "1 -> 2 -> 3 -> None");
     }
@@ -184,7 +184,7 @@ mod test {
     #[test]
     fn iter_single_element() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
+        list.push(1);
         let mut iter = list.iter();
         assert_eq!(iter.next(), Some(&1));
         assert_eq!(iter.next(), None);
@@ -193,9 +193,9 @@ mod test {
     #[test]
     fn iter_multiple_elements() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(2);
-        list.push_head(3);
+        list.push(1);
+        list.push(2);
+        list.push(3);
         let mut iter = list.iter();
         assert_eq!(iter.next(), Some(&3));
         assert_eq!(iter.next(), Some(&2));
@@ -206,9 +206,9 @@ mod test {
     #[test]
     fn iter_does_not_consume_list() {
         let mut list: LinkedList<i32> = LinkedList::new();
-        list.push_head(1);
-        list.push_head(2);
-        list.push_head(3);
+        list.push(1);
+        list.push(2);
+        list.push(3);
         let mut iter = list.iter();
         assert_eq!(iter.next(), Some(&3));
         assert_eq!(iter.next(), Some(&2));
