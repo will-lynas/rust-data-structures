@@ -226,6 +226,16 @@ mod test {
     }
 
     #[test]
+    fn last() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push(1);
+        list.push(2);
+        list.push(3);
+        let iter = list.iter();
+        assert_eq!(iter.last(), Some(&1));
+    }
+
+    #[test]
     fn from_vec() {
         let vec = vec![1, 2, 3, 4];
         let list: LinkedList<i32> = LinkedList::from(vec);
