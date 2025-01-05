@@ -69,6 +69,34 @@ impl<T> LinkedList<T> {
 
         Err(LinkedListError::OutOfBounds)
     }
+
+    pub fn remove(&mut self, index: usize) -> Result<T, LinkedListError> {
+        if index == 0 {
+            return self
+                .head
+                .take()
+                .map_or(Err(LinkedListError::OutOfBounds), |node| {
+                    self.head = node.next;
+                    Ok(node.value)
+                });
+        }
+
+        let mut current = &mut self.head;
+        let mut count = 0;
+
+        while let Some(node) = current {
+            if count + 1 == index {
+                if let Some(mut to_remove) = node.next.take() {
+                    node.next = to_remove.next.take();
+                    return Ok(to_remove.value);
+                }
+            }
+            count += 1;
+            current = &mut node.next;
+        }
+
+        Err(LinkedListError::OutOfBounds)
+    }
 }
 
 impl<T> Default for LinkedList<T> {
@@ -241,5 +269,49 @@ mod test {
         let list: LinkedList<i32> = LinkedList::from(vec);
 
         assert_eq!(list.to_string(), "1 -> 2 -> 3 -> 4 -> None");
+    }
+
+    #[test]
+    fn remove_from_head() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push(3);
+        list.push(2);
+        list.push(1);
+        assert_eq!(list.remove(0), Ok(1));
+        assert_eq!(list.to_string(), "2 -> 3 -> None");
+    }
+
+    #[test]
+    fn remove_from_middle() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push(3);
+        list.push(2);
+        list.push(1);
+        assert_eq!(list.remove(1), Ok(2));
+        assert_eq!(list.to_string(), "1 -> 3 -> None");
+    }
+
+    #[test]
+    fn remove_from_tail() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push(3);
+        list.push(2);
+        list.push(1);
+        assert_eq!(list.remove(2), Ok(3));
+        assert_eq!(list.to_string(), "1 -> 2 -> None");
+    }
+
+    #[test]
+    fn remove_out_of_bounds() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        list.push(1);
+        assert_eq!(list.remove(10), Err(LinkedListError::OutOfBounds));
+        assert_eq!(list.to_string(), "1 -> None");
+    }
+
+    #[test]
+    fn remove_from_empty_list() {
+        let mut list: LinkedList<i32> = LinkedList::new();
+        assert_eq!(list.remove(0), Err(LinkedListError::OutOfBounds));
     }
 }
